@@ -1,7 +1,28 @@
-import { listenLedState } from "./fbService.js";
+import { setLampState, listenLedState } from "./fbService.js";
 
-const tempDisplay = document.getElementById("temp-display");
+const lampSwitch = document.getElementById("lampSwitch");
 
-listenLedState((state) => {
-    tempDisplay.textContent = state;
+lampSwitch.addEventListener("change", () => {
+
+    if (lampSwitch.checked) {
+        setLampState(1)
+            .then(() => {
+                console.log("Lâmpada ligada. Enviando: 1");
+            })
+            .catch((error) => {
+                console.error("Erro ao ligar a lâmpada:", error);
+            })
+
+    }
+
+    else {
+        setLampState(0)
+            .then(() => {
+                console.log("Lâmpada desligada. Enviando: 0");
+            })
+            .catch((error) => {
+                console.error("Erro ao desligar a lâmpada:", error);
+            })
+    }
 });
+

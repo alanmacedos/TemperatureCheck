@@ -17,13 +17,11 @@
 
 // Define Firebase Data object
 FirebaseData fbdo;
-
 FirebaseData stream;
-
 FirebaseAuth auth;
 FirebaseConfig config;
 
-const int ledPin = 2;
+const int ledPin = 27;
 
 void streamTimeoutCallback(bool timeout)
 {
@@ -33,19 +31,20 @@ void streamTimeoutCallback(bool timeout)
     }
 }
 
-void streamCallback (FirebaseStream data)
+void streamCallback(FirebaseStream data)
 {
-  int state = data.intData();
+    int state = data.intData();
 
-  Serial.print("Novo estado recebido: ");
-  Serial.println(state);
+    Serial.print("Novo estado recebido: ");
+    Serial.println(state);
 
-  digitalWrite(ledPin, state);
+    digitalWrite(ledPin, state);
 }
 
 void setup()
 {
     pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, HIGH);
 
     Serial.begin(9600);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -80,39 +79,12 @@ void setup()
 
     Firebase.begin(&config, &auth);
     Firebase.setDoubleDigits(5);
+
+    Firebase.RTDB.beginStream(&stream, "/temperature/state");
+    Firebase.RTDB.setStreamCallback(&stream, streamCallback, streamTimeoutCallback);
 }
 
 void loop()
 {
-    int temperature = random(-5, 26);
-
-    Serial.print("Temperatura: ");
-    Serial.println(temperature);
-
-    if (Firebase.ready())
-    {
-        if (Firebase.RTDB.setInt(&fbdo, "temperature", temperature))
-        {
-            Serial.println("Temperatura enviada!");
-        }
-
-        else 
-        {
-            Serial.print("Erro: ");
-            Serial.print(fbdo.errorReason());
-        }
-    }
-
-    if (temperature >= 15)
-    {
-        
-        digitalWrite(ledPin, HIGH);
-    }
-
-    else
-    {
-        digitalWrite(ledPin, LOW);
-    }
-
-    delay(5000);
+    Firebase.ready();
 }
